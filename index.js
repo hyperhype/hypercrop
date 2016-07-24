@@ -1,11 +1,11 @@
 var h = require('hyperscript')
 
 module.exports = function (img, onCrop) {
+  onCrop = onCrop || function () {}
   var width = img.width, height = img.height
 
-  var c = CANVAS = h('canvas', {
-    width: width, height: height,
-    style: {width: '100%', height: '100%'}
+  var c = CANVAS = h('canvas.hypercrop__canvas', {
+    width: width, height: height
   })
 
   var c2 = h('canvas', {
@@ -98,4 +98,6 @@ module.exports = function (img, onCrop) {
 
   return c
 }
+
+
 
