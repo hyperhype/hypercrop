@@ -1,15 +1,17 @@
 var h = require('hyperscript')
 
-module.exports = function (img, onCrop) {
+module.exports = function (img, selection_canvas, onCrop) {
+  if('function' === typeof selection_canvas)
+    onCrop = selection_canvas, selection_canvas = null
+
+  var c2 = selection_canvas = selection_canvas || h('canvas.hypercrop__selection', {width: 512, height: 512})
+
   onCrop = onCrop || function () {}
-  var width = img.width, height = img.height
+
+ var width = img.width, height = img.height
 
   var c = CANVAS = h('canvas.hypercrop__canvas', {
     width: width, height: height
-  })
-
-  var c2 = h('canvas', {
-    width: 512, height: 512
   })
 
   c.selection = c2
@@ -46,13 +48,13 @@ module.exports = function (img, onCrop) {
     return {x: side, y: side}
   }
 
-  function rect (topleft, bottomright) {
-    ctx.fillRect(
-      topleft.x, topleft.y,
-      bottomright.x - topleft.x,
-      bottomright.y - topleft.y
-    )
-  }
+//  function rect (topleft, bottomright) {
+//    ctx.fillRect(
+//      topleft.x, topleft.y,
+//      bottomright.x - topleft.x,
+//      bottomright.y - topleft.y
+//    )
+//  }
 
   function updateSelection () {
     var bound = square(start, end)
@@ -98,6 +100,4 @@ module.exports = function (img, onCrop) {
 
   return c
 }
-
-
 
