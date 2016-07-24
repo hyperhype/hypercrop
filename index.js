@@ -1,6 +1,6 @@
 var h = require('hyperscript')
 
-module.exports = function (img) {
+module.exports = function (img, onCrop) {
   var width = img.width, height = img.height
 
   var c = CANVAS = h('canvas', {
@@ -9,15 +9,18 @@ module.exports = function (img) {
   })
 
   var c2 = h('canvas', {
-    width: 256, height: 256
+    width: 512, height: 512
   })
 
   c.selection = c2
   var ctx = X = c.getContext('2d')
   ctx.drawImage(img, 0, 0)
+  //show selection as shadown region.
+  //TODO: invert this so unselected portion is in shadow
+  ctx.fillStyle = "rgba(0, 0, 0, 0.2)";
   ctx2 = c2.getContext('2d')
 
-  console.log(c)
+  var down = false
 
   ctx.save()
 
@@ -51,42 +54,48 @@ module.exports = function (img) {
     )
   }
 
+  function updateSelection () {
+    var bound = square(start, end)
+    ctx2.drawImage(img, 
+      start.x, start.y,
+      bound.x, bound.y,
+      0, 0, c2.width, c2.height
+    )
+  }
+
   c.onmousemove = function (e) {
-    var point = coords(e)
+    if(!down) return
+    end = coords(e)
     ctx.drawImage(img, 0, 0)
-    ctx.fillStyle = "rgba(0, 0, 0, 0.2)";
-    if(start) {
-        var bound = square(start, end || point)
-        ctx2.drawImage(img, 
-          start.x, start.y,
-          bound.x, bound.y,
-          0, 0, c2.width, c2.height
-        )
-    }
+    updateSelection()
   }
 
   c.onmousedown = function (ev) {
+    down = true
     start = coords(ev)
     end = null
   }
 
   c.onmouseup = function (ev) {
+    down = false
     end = coords(ev)
+    onCrop(c2.toDataURL())
   }
+
+  //default to select center square in image.
+  var longest = Math.max(c.width, c.height)
+  var shortest = Math.min(c.width, c.height)
+  var edge = (longest - shortest)/2
+  if(c.width > c.height)
+    start = {x: edge, y: 0}
+  else
+    start = {x: 0, y: edge}
+
+  end = {x: start.x+shortest, y: start.y + shortest}
+
+  //default selection
+  updateSelection()
 
   return c
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
 
