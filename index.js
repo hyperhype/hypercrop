@@ -91,15 +91,20 @@ module.exports = function (img, selection_canvas, onCrop) {
   }
 
   //default to select center square in image.
+  //with a small border to show the crop effect
   var longest = Math.max(c.width, c.height)
   var shortest = Math.min(c.width, c.height)
   var edge = (longest - shortest)/2
+  var pad = 20
   if(c.width > c.height)
-    start = {x: edge, y: 0}
+    start = {x: edge + pad, y: pad}
   else
-    start = {x: 0, y: edge}
+    start = {x: pad, y: edge + pad}
 
-  end = {x: start.x+shortest, y: start.y + shortest}
+  end = {
+    x: start.x + shortest - 2*pad,
+    y: start.y + shortest - 2*pad
+  }
 
   //default selection
   updateSelection()
