@@ -32,7 +32,17 @@ module.exports = function (img, selection_canvas, onCrop) {
 
   var start, end
 
-  function square (topleft, bottomright) {
+  function square (start, end) {
+    var side = Math.max(
+      Math.abs(start.x - end.x),
+      Math.abs(start.y - end.y)
+    )
+
+    var topleft = {
+      x: (start.x < end.x) ? start.x : start.x - side,
+      y: (start.y < end.y) ? start.y : start.y - side
+    }
+
     // reset the canvas
     ctx.clearRect(
       0, 0,
@@ -45,10 +55,6 @@ module.exports = function (img, selection_canvas, onCrop) {
       width, height
     )
 
-    var side = Math.max(
-      bottomright.x - topleft.x,
-      bottomright.y - topleft.y
-    )
     // cut a whole the the mask
     ctx.clearRect(
       topleft.x, topleft.y,
