@@ -49,7 +49,7 @@ module.exports = function (img, selection_canvas, onCrop) {
       width, height
     )
     // fill the canvas with a translucent mask
-    ctx.fillStyle = 'rgba(0, 0, 0, 0.4)'
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.6)'
     ctx.fillRect(
       0, 0,
       width, height
