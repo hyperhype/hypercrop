@@ -4,27 +4,23 @@ module.exports = function (img, selection_canvas, onCrop) {
   if('function' === typeof selection_canvas)
     onCrop = selection_canvas, selection_canvas = null
 
-  var c2 = selection_canvas = selection_canvas || h('canvas.hypercrop__selection', {width: 512, height: 512})
-
   onCrop = onCrop || function () {}
 
- var width = img.width, height = img.height
+  var c2 = selection_canvas = selection_canvas || h('canvas.hypercrop__selection', {width: 512, height: 512})
+
+  var width = img.width
+  var height = img.height
 
   var c = CANVAS = h('canvas.hypercrop__canvas', {
     width: width, height: height
   })
-
   c.selection = c2
-  var ctx = X = c.getContext('2d')
-  ctx.drawImage(img, 0, 0)
-  //show selection as shadown region.
-  //TODO: invert this so unselected portion is in shadow
-  ctx.fillStyle = "rgba(0, 0, 0, 0.2)";
-  ctx2 = c2.getContext('2d')
+
+  var ctx = c.getContext('2d')
+  ctx.save()
+  var ctx2 = c2.getContext('2d')
 
   var down = false
-
-  ctx.save()
 
   function coords(ev) {
     var rect = c.getBoundingClientRect()
@@ -37,24 +33,34 @@ module.exports = function (img, selection_canvas, onCrop) {
   var start, end
 
   function square (topleft, bottomright) {
+    // reset the canvas
+    ctx.clearRect(
+      0, 0,
+      width, height
+    )
+    // fill the canvas with a translucent mask
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.4)'
+    ctx.fillRect(
+      0, 0,
+      width, height
+    )
+
     var side = Math.max(
       bottomright.x - topleft.x,
       bottomright.y - topleft.y
     )
-    ctx.fillRect(
+    // cut a whole the the mask
+    ctx.clearRect(
       topleft.x, topleft.y,
       side, side
     )
+
+    // apply the image over the mask with a compositor
+    ctx.globalCompositeOperation = 'source-out'
+    ctx.drawImage(img, 0, 0)
+
     return {x: side, y: side}
   }
-
-//  function rect (topleft, bottomright) {
-//    ctx.fillRect(
-//      topleft.x, topleft.y,
-//      bottomright.x - topleft.x,
-//      bottomright.y - topleft.y
-//    )
-//  }
 
   function updateSelection () {
     var bound = square(start, end)
