@@ -6,24 +6,24 @@ module.exports = function (img, selection_canvas, onCrop) {
 
   onCrop = onCrop || function () {}
 
-  var c2 = selection_canvas = selection_canvas || h('canvas.hypercrop__selection', {width: 512, height: 512})
+  selection_canvas = selection_canvas || h('canvas.hypercrop__selection', {width: 512, height: 512})
 
   var width = img.width
   var height = img.height
 
-  var c = CANVAS = h('canvas.hypercrop__canvas', {
+  var canvas = h('canvas.hypercrop__canvas', {
     width: width, height: height
   })
-  c.selection = c2
+  canvas.selection = selection_canvas
 
-  var ctx = c.getContext('2d')
+  var ctx = canvas.getContext('2d')
   ctx.save()
-  var ctx2 = c2.getContext('2d')
+  var selection_ctx = selection_canvas.getContext('2d')
 
   var down = false
 
   function coords(ev) {
-    var rect = c.getBoundingClientRect()
+    var rect = canvas.getBoundingClientRect()
     return {
       x: ((ev.clientX-rect.left)/rect.width)*width,
       y: ((ev.clientY-rect.top)/rect.height)*height
@@ -70,39 +70,39 @@ module.exports = function (img, selection_canvas, onCrop) {
 
   function updateSelection () {
     var bound = square(start, end)
-    ctx2.drawImage(img, 
+    selection_ctx.drawImage(img,
       start.x, start.y,
       bound.x, bound.y,
-      0, 0, c2.width, c2.height
+      0, 0, selection_canvas.width, selection_canvas.height
     )
   }
 
-  c.onmousemove = function (e) {
+  canvas.onmousemove = function (e) {
     if(!down) return
     end = coords(e)
     ctx.drawImage(img, 0, 0)
     updateSelection()
   }
 
-  c.onmousedown = function (ev) {
+  canvas.onmousedown = function (ev) {
     down = true
     start = coords(ev)
     end = null
   }
 
-  c.onmouseup = function (ev) {
+  canvas.onmouseup = function (ev) {
     down = false
     end = coords(ev)
-    onCrop(c2.toDataURL())
+    onCrop(selection_canvas.toDataURL())
   }
 
   //default to select center square in image.
   //with a small border to show the crop effect
-  var longest = Math.max(c.width, c.height)
-  var shortest = Math.min(c.width, c.height)
+  var longest = Math.max(canvas.width, canvas.height)
+  var shortest = Math.min(canvas.width, canvas.height)
   var edge = (longest - shortest)/2
   var pad = 20
-  if(c.width > c.height)
+  if(canvas.width > canvas.height)
     start = {x: edge + pad, y: pad}
   else
     start = {x: pad, y: edge + pad}
@@ -115,6 +115,6 @@ module.exports = function (img, selection_canvas, onCrop) {
   //default selection
   updateSelection()
 
-  return c
+  return canvas
 }
 
