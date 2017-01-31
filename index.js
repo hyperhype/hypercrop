@@ -65,14 +65,20 @@ module.exports = function (img, selection_canvas, onCrop) {
     ctx.globalCompositeOperation = 'source-out'
     ctx.drawImage(img, 0, 0)
 
-    return {x: side, y: side}
+    return {
+      topleft: topleft,
+      side: {
+        x: side,
+        y: side
+      }
+    }
   }
 
   function updateSelection () {
     var bound = square(start, end)
     selection_ctx.drawImage(img,
-      start.x, start.y,
-      bound.x, bound.y,
+      bound.topleft.x, bound.topleft.y,
+      bound.side.x, bound.side.y,
       0, 0, selection_canvas.width, selection_canvas.height
     )
   }
